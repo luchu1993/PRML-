@@ -1,5 +1,9 @@
 \documentclass[11pt]{ctexbook}
 
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+
 \title{\textbf{PRML读书笔记} }
 \author{C. Lu}
 
@@ -11,6 +15,36 @@
 
 \chapter{绪论}
 \section{概率论}
+概率论的两条基本法则：
+\begin{equation} 
+	\mathrm{\textbf{sum rule}} \ \ p(X) = \sum_Y p(X, Y)
+\end{equation}
+\begin{equation} 
+	\mathrm{\textbf{product rule}} \ \ p(X, Y) = p(Y|X)p(X)
+\end{equation}
+其中$p(x, Y)$是联合概率分布，表示是\ “$X$且$Y$的概率”；P(Y|X)是条件概率，表示为“给定$X$的条件下， $Y$发生的概率”。
+
+根据对称性\ $p(X, Y) = p(Y, X)$, 可以推导出：
+\begin{equation}
+	\label{eq:bayes}
+	p(Y|X) = \frac{p(X|Y)p(Y)}{p(X)}
+\end{equation}
+公式\ref{eq:bayes}被称为\emph{贝叶斯定理}(Bayes' theorem)。使用加和法则，贝叶斯定理中的分母可以用出现在分子中的项表示：
+\begin{equation}
+	p(X) = \sum_Y p(X|Y)p(Y)
+\end{equation}
+\subsection{概率密度}
+对于连续型随机变量$x$ 位于区间$ (a, b)$上的概率由下式给出：
+\begin{equation}
+	p(x\in(a, b)) = \int_{a}^{b}p(x)\ \mathrm{d}x
+\end{equation}
+由于概率是非负的，并且$x$的值一定位于实数轴的某个位置，因此概率密度一定满足以下两个条件：
+\begin{equation}
+	p(x) \geqslant 0
+\end{equation}
+\begin{equation}
+	\int_{-\infty}^{+\infty}p(x)\ \mathrm{d}x= 1
+\end{equation}
 \section{信息论}
 
 \chapter{概率分布}
@@ -27,6 +61,76 @@
 \chapter{图模型}
 
 \chapter{混合模型和EM}
+\section{K-means 算法}
+假设有一个数据集$\{ \bm x_1, \bm x_2, \ldots, \bm x_N\}$，它由$D$维欧几里得空间中的随机变量$\bm x$的$N$次观测组成。我们的目的是要将数据划分成$K$个类别，假设$K$是给定的一个数。
+
+引入一组$D$维向量$\bm \mu_k$，其中$k=1, 2, \ldots, K$，且$\bm \mu_k$是第$k$个聚类关联的一个代表，可以认为$\bm \mu_k$是第$k$个聚类的中心。算法的目的是要找到每个数据点分别属于的类，以及一组向量$\{\bm \mu_k\}$，使得每个数据点和它最近的向量$\bm \mu_k$之间的距离的平方和最小。
+
+现在，对于每个数据点$\bm x_n$，引入一组对应的二值指示变量$r_{nk} \in \{0, 1\}$，其中 $k = 1, 2, \ldots, K$，表示每个数据点$\bm x_n$属于$K$个聚类中的。如果数据点$\bm x_n$属于第$k$个聚类，那么$r_{nk}=1$，且对于$j \neq k$, 有$r_{nj} = 0$。定义目标函数，形式为：
+\begin{equation}
+	\label{eq:kmeas-cost}
+	J = \sum_{n=1}^{N}\sum_{k=1}^{k}r_{nk}\| \bm x_n - \bm \mu_k \|^2
+\end{equation}
+它表示每个数据点与被分配的向量$\bm \mu_k$之间的距离的平方和。我们的目标是要找到$\{r_{nk}\}$与$\bm \mu_{nk}$的值，使得$J$达到最小值。
+
+可以使用迭代的方法来达到目标。每次迭代分为两个步骤，分别对应$r_{nk}$的最优化和$\bm \mu_k$的最优化。 首先，为$\bm \mu_k$选择一些初始值。然后，在第一阶段，关于$r_{nk}$最小化$J$，保持$\bm \mu_k$固定。第二阶段，关于$\bm \mu_k$最小化$J$，保持$r_{nk}$固定。不断重复这个二阶段优化直到收敛。
+
+首先考虑确定$r_{nk}$。公式\ref{eq:kmeas-cost}关于$r_{nk}$是线性的，且与不同的$n$相关的项是独立的，可以对每个$n$分别进行优化。只要$k$的值使$\|\bm x_n-\bm \mu_k\|^2$的值最小，就令$r_{nk}=1$，换句话说，可以简单的将数据点的聚类设置为最近的聚类中心。形式化的表述为
+\begin{equation}
+	r_{nk} = \left\{\begin{array}{ll}
+		1, & \text{如果} k = \arg\min_{j} \| \bm x_n - \bm \mu_j\|^2 \\
+		0, & \text{其他情况}
+	\end{array}\right.
+\end{equation}
+
+现在考虑$r_{nk}$固定时，关于$\bm \mu_K$的最优化。目标函数$J$是一个二次函数，令它关于$\bm \mu_k$的导数等于$0$，即可达到最小值，即
+\begin{equation}
+	2\sum_{n=1}^{N}r_{nk}(\bm x_n - \bm \mu_k) = 0
+\end{equation}
+解出$\bm \mu_k$的值，结果为
+\begin{equation}
+	\label{eq:u_k}
+	\bm \mu_k = \frac{\sum_n r_{nk}\bm x_n}{\sum_n r_{nk}}
+\end{equation}
+\ref{eq:u_k}中的分母等于聚类$k$中数据点的数量，因此这个结果的意义是：$\mu_k$为聚类$k$中所有数据点的均值。因此，此算法被称为K-means算法。
+
+重新为数据点分配聚类的步骤以及重新计算聚类均值的步骤重复进行，直到聚类的分配不再改变。每个阶段都减小了目标函数$J$，因此算法的收敛性得到保证。但是，\emph{算法可能收敛到$J$的一个局部最小值而非全局最小}。
+
+\section{混合高斯}
+高斯混合模型的概率分布可以写成多个高斯分布的线形叠加，即
+\begin{equation}
+	p(\bm x) = \sum_{k=1}^{K}\pi_k\mathcal N(\bm x\ | \ \bm \mu_k, \bm \Sigma_k)
+\end{equation}
+引入一个$K$维的二值随机变量$\bm z$, 采用“1-of-K”编码，其中一个特定的元素$z_k$等于$1$，其余所有的元素都等于$0$。 于是$z_k$的值满足$z_k \in \{0, 1\}$且$\sum_k z_k = 1$，并且我们看到根据哪个元素非零，向量$\bm z$有$K$个可能的状态。$\bm z$的边缘概率分布可以根据混合系数$\pi_k$进行赋值，即
+\begin{equation}
+	p(z_k=1) = \pi_k
+\end{equation}
+其中参数$\{\pi_k\}$必须满足
+\begin{equation}
+	0 \leqslant \pi_k \leqslant 1
+\end{equation}
+以及
+\begin{equation}
+	\sum_{k=1}^{K} \pi_k = 1
+\end{equation}
+由于$\bm z$使用了“1-of-K”编码，也可以将这个概率分布写成
+\begin{equation}
+	p(\bm z) = \prod_{k=1}^{k}\pi_k^{z_k}
+\end{equation}
+对于$\bm z$给定的一个值， $\bm x$的条件概率分布是一个高斯分布
+\begin{equation}
+	p(\bm x\ |\  z_k= 1) = \mathcal N (\bm x\ |\ \bm \mu_k, \bm \Sigma_k )
+\end{equation}
+类似的也可以写成
+\begin{equation}
+	p(\bm x \ | \ \bm z) = \prod_{k=1}^{K} \mathcal N (\bm x \ |\ \bm \mu_k, \bm \Sigma_k ) ^ {z_k}
+\end{equation}
+
+$\bm x $的边缘概率分布可以通过将联合概率分布对所有可能的$\bm z$求和的方式得到，即
+\begin{equation}
+	p(\bm x) = \sum_z p(\bm z)p(\bm x \ |\ \bm z) = \sum_{k=1}^{K}\pi_k \mathcal N(\bm x \ |\ \bm \mu_k, \bm \Sigma_k)
+\end{equation}
+于是我们找到了一个将隐变量$\bm z$显示写出的一个高斯混合分布一个等价公式。
 
 \chapter{近似推断}
 
