@@ -1,1 +1,1 @@
-# PRML-notes
+PRML 读书笔记
