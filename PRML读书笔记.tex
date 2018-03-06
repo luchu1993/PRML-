@@ -20,18 +20,18 @@
 	\mathrm{\textbf{sum rule}} \ \ p(X) = \sum_Y p(X, Y)
 \end{equation}
 \begin{equation} 
-	\mathrm{\textbf{product rule}} \ \ p(X, Y) = p(Y|X)p(X)
+	\mathrm{\textbf{product rule}} \ \ p(X, Y) = p(Y\ |\ X)p(X)
 \end{equation}
-其中$p(x, Y)$是联合概率分布，表示是\ “$X$且$Y$的概率”；P(Y|X)是条件概率，表示为“给定$X$的条件下， $Y$发生的概率”。
+其中$p(X, Y)$是联合概率分布，表示是\ “$X$且$Y$的概率”；$P(Y\ |\ X)$是条件概率，表示为“给定$X$的条件下， $Y$发生的概率”。
 
 根据对称性\ $p(X, Y) = p(Y, X)$, 可以推导出：
 \begin{equation}
 	\label{eq:bayes}
-	p(Y|X) = \frac{p(X|Y)p(Y)}{p(X)}
+	p(Y\ |\ X) = \frac{p(X\ |\ Y)p(Y)}{p(X)}
 \end{equation}
 公式\ref{eq:bayes}被称为\emph{贝叶斯定理}(Bayes' theorem)。使用加和法则，贝叶斯定理中的分母可以用出现在分子中的项表示：
 \begin{equation}
-	p(X) = \sum_Y p(X|Y)p(Y)
+	p(X) = \sum_Y p(X\ |\ Y)p(Y)
 \end{equation}
 \subsection{概率密度}
 对于连续型随机变量$x$ 位于区间$ (a, b)$上的概率由下式给出：
@@ -45,6 +45,38 @@
 \begin{equation}
 	\int_{-\infty}^{+\infty}p(x)\ \mathrm{d}x= 1
 \end{equation}
+
+我们考虑一个随机变量的转换$x = g(y)$，$p_x(x)$与$p_y(y)$分别代表了$x$与$y$的概率密度函数，对于很小的$\delta_x$，落在区间$(x,\ x+\delta_x)$内的观测值会被变换到$(y,\ y+\delta_y)$中。其中$p_x(x)\delta_x \simeq p_y(y)\delta_y$，因此
+\begin{equation}
+	p_y(y) = p_x(x)\left|\frac{\mathrm{d}x}{\mathrm{d}y}\right| = p_x(g(y))\left|g'(y)\right|
+\end{equation}
+这个性质说明了概率密度最大值的位置，取决于变量的选择。
+
+位于区间$(-\infty,\ z)$的$x$的概率密度由累积分布函数(c.d.f)给出。定义为：
+\begin{equation}
+	P(z) = \int_{-\infty}^{z}p(x)\ \mathrm{d}x
+\end{equation}
+满足$P'(x) = p(x)$。
+
+如果有多个连续变量$x_1, x_2, \ldots, x_D$，整体记作向量$\bm x$，那么我们可以定义联合概率密度$p(\bm x) = p(x_1, x_2, \ldots, x_D)$，使得$\bm x$落在包含点$\bm x$的无穷小体积$\delta_{\bm x}$的概率由$p(\bm x) \delta_{\bm x}$给出。多便利那个概率密度必须满足
+\begin{equation}
+	p(\bm x) \geqslant 0
+\end{equation}
+\begin{equation}
+	\int p(\bm x)\ \mathrm{d}\bm x = 1
+\end{equation}
+其中积分必须在整个$\bm x$的空间上进行。
+
+概率密度的加和规则、乘积规则以及贝叶斯规则同样可以应用到连续变量的概率密度函数上，也可以应用到离散变量和连续变量的混合的情形。若$x$, $y$是两个连续变量，那么加和规则和乘积规则为
+\begin{equation}
+	p(x) = \int p(x, y)\ \mathrm{d}y
+\end{equation}
+\begin{equation}
+	p(x, y) = p(y\ |\ x)p(x)
+\end{equation}
+形式化证明连续变量的加和规则和乘积规则需要用到\emph{测度论}的数学分支。
+
+\subsection{期望和方差}
 \section{信息论}
 
 \chapter{概率分布}
