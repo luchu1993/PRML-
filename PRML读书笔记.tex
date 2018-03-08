@@ -4,6 +4,12 @@
 \usepackage{amssymb}
 \usepackage{bm}
 
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\usepackage{hyperref}
+\usepackage{graphicx}
+
 \title{\textbf{PRML读书笔记} }
 \author{C. Lu}
 
@@ -162,8 +168,81 @@ $\bm x $的边缘概率分布可以通过将联合概率分布对所有可能的
 \begin{equation}
 	p(\bm x) = \sum_z p(\bm z)p(\bm x \ |\ \bm z) = \sum_{k=1}^{K}\pi_k \mathcal N(\bm x \ |\ \bm \mu_k, \bm \Sigma_k)
 \end{equation}
-于是我们找到了一个将隐变量$\bm z$显示写出的一个高斯混合分布一个等价公式。
+于是我们找到了一个将隐变量$\bm z$显示写出的一个高斯混合分布一个等价公式。对联合概率分布$p(\bm x, \bm z)$而不是对$p(\bm x)$进行操作，会产生计算上极大的简化。
 
+另一个有重要作用的量是给定$\bm x$的情况下，$\bm z$的后验概率$p(\bm z\ |\ \bm x)$。用$\mathcal \gamma(z_k)$表示$p(z_k=1\ |\ \bm x)$，其值可由贝叶斯定理给出
+\begin{align}
+	\gamma(z_k) = p(z_k=1\ |\ \bm x) &= \frac{p(z_k=1)p(\bm x\ |\ z_k=1)}{\sum_{j=1}^{K}p(z_j=1)p(\bm x\ |\ z_j=1)} \\
+									 &= \frac{\pi_k p(\bm x\ |\ z_k=1)}{\sum_{j=1}^{K}\pi_j p(\bm x\ |\ z_j=1)} 
+\end{align}
+可以将$\pi_k$看成是$z_k=1$的先验概率，将$\gamma(z_k)$看成是观测到$\bm x$之后，对应的后验概率。
+
+假设我们有观测数据集$\{\bm x_1, \bm x_2, \ldots, \bm x_N\}$，我们希望使用混合高斯来对数据建模。可以将这个数据集标示为$N\times D$的矩阵$\bm X$，其中第$n$行为$\bm x_n^\top$。类似的，对应的隐变量被表示为一个$N\times K$的矩阵$\bm Z$，它的行为$\bm z_n^\top$，可以使用图\ref{fig:em-model} 所示的图模型来表示独立同分布数据集的高斯混合模型。$\bm X$的对数似然函数为
+\begin{equation}
+	\label{eq:6-15}
+	\log p(\bm X\ |\ \bm \pi, \bm \mu, \bm \Sigma)=\sum_{n=1}^{N}\log\left\{ \sum_{k=1}^{K}\pi_k\mathcal N(\bm x_n\ |\ \bm \mu_k, \Sigma_k) \right\}
+\end{equation}
+最大化高斯混合模型的对数似然函数\ref 式{eq:6-15}比单一的高斯分布的情形更加复杂。因为对$k$的求和出现在了对数内部；\emph{如果令导数等于零，不会得到一个解析解}。
+使用基于梯度的优化方法可以得到解，但现在考虑另一种可行方法，称为\emph{EM算法}。
+
+\section{EM 算法}
+期望最大化算法，也叫EM算法，是寻找潜在变量的概率模型的最大似然解的一种通用方法。考虑一个概率模型，其中所有的观测变量记作$\bm X$，所有隐含变量记作$\bm Z$。联合概率分布$p(\bm X, \bm Z\ |\ \bm \theta)$由一组参数$\bm \theta $控制，目标是最大化似然函数
+\begin{equation}
+	p(\bm X\ |\ \bm \theta) = \sum_{\bm Z}p(\bm X, \bm Z | \bm \theta)
+\end{equation}
+这里，假设$\bm Z$是离散的。
+\begin{figure}
+	\centering
+	\includegraphics[width=6cm]{EM-model}
+	\caption{一组N个独立同分布数据点$\{\bm x_n\}$的高斯混合模型的图表示，对应的潜在变量为$\{\bm z_n\}$，其中$n=1,2,\ldots, N$。}
+	\label{fig:em-model}
+\end{figure}
+直接优化$p(\bm X\ |\ \bm\theta)$比较困难，但是最优化完整数据似然函数$p(\bm X, \bm Z\ |\ \bm \theta)$就容易得很多。接下来，引入一个定义在隐变量$\bm Z$上的分布$p(\bm Z)$。对任意$p(\bm Z)$，如下分解成立
+\begin{equation}
+	\log p(\bm X\ |\ \bm\theta) = \mathcal L(q, \bm \theta) + \mathrm{KL}(q\ \|\ p)
+\end{equation}
+其中
+\begin{equation}
+	\mathcal L(q, \bm\theta) = \sum_{\bm Z}q(\bm Z)\log\left\{ \frac{p(\bm X,\bm Z\ |\ \bm \theta)}{q(\bm Z)}\right\}
+\end{equation}
+\begin{equation}
+	\mathrm{KL}(p\ \|\ q) = -\sum_{\bm Z}q(\bm Z)\log\left\{\frac{p(\bm Z\ |\ \bm X, \bm\theta)}{q(\bm Z)}\right\}
+\end{equation}
+$\mathcal L(q, \bm\theta)$是概率分布$q(\bm Z)$的一个\emph{范函}，并且是一个参数$\bm\theta$的函数。因为$\mathrm{KL}(p\ \|\ q) \geqslant 0$，当且仅当$q(\bm Z) = p(\bm Z\ |\ \bm X, \bm\theta)$时取得等号。因此，$\mathcal L(q, \bm\theta) \leqslant \log p(\bm X\ |\ \bm\theta)$，即$\mathcal L(q, \bm\theta)$是$\log p(\bm X\ |\ \bm\theta)$是的一个下界。
+
+EM算法是一个两阶段迭代优化算法。
+
+假设当前的参数$\bm\theta^{\mathrm{old}}$，在\emph{E步骤}中，下界$\mathcal L(q, \bm\theta^{\mathrm{old}})$关于$q(\bm Z)$最大化，而$\bm\theta^{old}$保持固定。当KL散度为零时，即得到了最大化的解。换句话说，最大值出现在$q(\bm Z)$与后验概率分布$p(\bm Z\ |\ \bm X, \bm\theta)$相等时，KL散度等于零，此时，下界等于最大似然函数。
+
+在接下来的\emph{M步骤}中，分布$q(\bm Z)$保持固定，下界$\mathcal L(q, \bm\theta)$关于$\bm\theta$最大化，得到了某个新的值$\bm\theta^{\mathrm{new}}$，这会使得下界$\mathcal L$增大。同时也会使得对数似然增大，因为概率分布$q$由旧的参数值确定，并且在\emph{M步骤}保持固定，因此不会等于新的后验分布$p(\bm Z\ |\ \bm X,\bm\theta^{\mathrm{new}})$，从而KL散度非零；而且对数似然的增加量大于下界$\mathcal L(q, \bm\theta)$的增加量。在\emph{E步骤}之后，下界的形式为
+\begin{align*}
+	\mathcal L(q, \bm\theta) &= \sum_{\bm Z}p(\bm Z\ |\ \bm X, \bm\theta^{\mathrm{old}})\log p(\bm X, \bm Z\ |\ \bm\theta)\\
+	& \ \ \ \ - \sum_{\bm Z}p(\bm Z\ |\ \bm X,\bm\theta^{\mathrm{old}})\log p(\bm Z\ |\ \bm X, \bm\theta^{\mathrm{old}}) \\
+	&= \mathcal Q(\bm\theta, \bm\theta^{\mathrm{old}}) + \text{常数}
+\end{align*}
+其中常数是$q$的熵，与$\bm \theta$无关。从而，在\emph{M步骤}中，最大化的量是\emph{完整数据对数似然函数的期望}。完整的EM算法如算法\ref{}所示。
+\begin{algorithm}
+\caption{用于含有隐变量最大似然函数参数估计的EM算法}
+\label{algo:em}
+\begin{algorithmic}[1]
+\STATE 选择参数的初始值$\bm\theta^{(t)}, t = 0$
+\REPEAT
+\STATE \textbf{E步骤}:\ \ 计算$p(\bm Z\ |\ \bm X, \bm\theta^{(t)})$
+\STATE \textbf{M步骤}:\ \ 计算$\bm\theta^{(t+1)}$，由下式给出
+\begin{equation*}
+	\bm \theta^{(t+1)} = \arg\max_{\bm \theta}\mathcal Q (\bm\theta, \bm\theta^{(t)})
+\end{equation*}
+其中
+\begin{equation*}
+	\mathcal Q (\bm\theta, \bm\theta^{(t)}) = \sum_{\bm Z}p(\bm Z\ |\ \bm \theta^{(t)}) \log p(\bm X, \bm Z\ |\ \bm\theta)
+\end{equation*}
+\UNTIL{对数似然函数收敛或者参数值收敛}
+\end{algorithmic}
+\end{algorithm}
+
+\section{EM算法实例}
+\subsection{用于混合高斯模型的EM}
+\subsection{伯努利分布的混合}
 \chapter{近似推断}
 
 \chapter{采样方法}
