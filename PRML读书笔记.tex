@@ -182,7 +182,7 @@ $\bm x $的边缘概率分布可以通过将联合概率分布对所有可能的
 	\label{eq:6-15}
 	\log p(\bm X\ |\ \bm \pi, \bm \mu, \bm \Sigma)=\sum_{n=1}^{N}\log\left\{ \sum_{k=1}^{K}\pi_k\mathcal N(\bm x_n\ |\ \bm \mu_k, \Sigma_k) \right\}
 \end{equation}
-最大化高斯混合模型的对数似然函数\ref 式{eq:6-15}比单一的高斯分布的情形更加复杂。因为对$k$的求和出现在了对数内部；\emph{如果令导数等于零，不会得到一个解析解}。
+最大化高斯混合模型的对数似然函数式\ref{eq:6-15}比单一的高斯分布的情形更加复杂。因为对$k$的求和出现在了对数内部；\emph{如果令导数等于零，不会得到一个解析解}。
 使用基于梯度的优化方法可以得到解，但现在考虑另一种可行方法，称为\emph{EM算法}。
 
 \section{EM 算法}
@@ -220,7 +220,7 @@ EM算法是一个两阶段迭代优化算法。
 	& \ \ \ \ - \sum_{\bm Z}p(\bm Z\ |\ \bm X,\bm\theta^{\mathrm{old}})\log p(\bm Z\ |\ \bm X, \bm\theta^{\mathrm{old}}) \\
 	&= \mathcal Q(\bm\theta, \bm\theta^{\mathrm{old}}) + \text{常数}
 \end{align*}
-其中常数是$q$的熵，与$\bm \theta$无关。从而，在\emph{M步骤}中，最大化的量是\emph{完整数据对数似然函数的期望}。完整的EM算法如算法\ref{}所示。
+其中常数是$q$的熵，与$\bm \theta$无关。从而，在\emph{M步骤}中，最大化的量是\emph{完整数据对数似然函数的期望}。完整的EM如算法\ref{algo:em}所示。
 \begin{algorithm}
 \caption{用于含有隐变量最大似然函数参数估计的EM算法}
 \label{algo:em}
@@ -234,7 +234,7 @@ EM算法是一个两阶段迭代优化算法。
 \end{equation*}
 其中
 \begin{equation*}
-	\mathcal Q (\bm\theta, \bm\theta^{(t)}) = \sum_{\bm Z}p(\bm Z\ |\ \bm \theta^{(t)}) \log p(\bm X, \bm Z\ |\ \bm\theta)
+	\mathcal Q (\bm\theta, \bm\theta^{(t)}) = \sum_{\bm Z}p(\bm Z\ |\ \bm X, \bm \theta^{(t)}) \log p(\bm X, \bm Z\ |\ \bm\theta)
 \end{equation*}
 \UNTIL{对数似然函数收敛或者参数值收敛}
 \end{algorithmic}
@@ -247,5 +247,83 @@ EM算法是一个两阶段迭代优化算法。
 
 \chapter{采样方法}
 
+\chapter{连续潜在变量}
+\section{主成分分析}
+主成分分析，或者称为PCA，是一种广泛使用的技术，应用的领域包括维度降低、有损数据压缩、特征抽取、数据可视化。有两种经常使用的PCA的定义：
+\begin{itemize}
+	\item PCA被定义为数据在被称为\emph{主子空间}的低维线性空间上的投影，使得投影数据的方差最大化
+	\item 也可以被定义为使得平均投影代价最小的线形投影，平均投影代价是指数据点和它们的投影之间的平均平方距离
+\end{itemize}
+\subsection{最大方差形式}
+考虑一组观测数据集${\bm x_n}$，其中$n=1,\ldots,N$，$x_n$是一个$D$维欧几里得空间中的变量。考虑将数据投影到维度是$M<D$的空间中。
 
+首先，考虑在一维空间$(M=1)$上的投影。可以使用$D$维向量$\bm u_1$定义投影方法。为了计算方便和不失一般性，假定选择一个单位向量，而且$\bm u_1^{\top}\bm u_1 = 1$，这样每个数据点$\bm x_n$被投影到一个标量值$\bm u_1^{\top}\bm x_n$上。被投影数据的均值是$\bm u_1^{\top}\overline{\bm x}$，其中$
+\overline{\bm x}$是样本集合的均值，形式为
+\begin{equation}
+	\overline{\bm x} = \frac{1}{N}\sum_{n=1}^{N}\bm x_n
+\end{equation}
+投影数据的方差为
+\begin{equation}
+	\frac{1}{N}\sum_{n=1}^{N}\{\bm u_1^{\top}\bm x_n - \bm u_1^{\top}\overline{\bm x}\}^2 = \bm u_1^\top\bm S\bm u_1
+\end{equation}
+其中$\bm S$是协方差矩阵，定义为
+\begin{equation}
+	\bm S = \frac{1}{N}\sum_{n=1}^{N}(\bm x_n - \overline{\bm x})(\bm x_n - \overline{\bm x})^\top
+\end{equation}
+现在关于$\bm u_1$最大化投影方差$\bm u_1^\top\bm S\bm u_1$，包含约束条件$\|\bm u_1\| = 1$。可以采用拉格朗日乘数法，转化为如下的无约束优化问题
+\begin{equation}
+	\bm u_1^\top \bm S\bm u_1 + \lambda_1(1-\bm u_1^\top\bm u_1)
+\end{equation}
+通过令其关于$\bm u_1$导数等于零，可以看到驻点满足
+\begin{equation}
+	\bm S\bm u_1 = \lambda_1\bm u_1
+\end{equation}
+这表明$\bm u_1$一定是$\bm S$的一个特征向量。如果左乘$\bm u_1^\top$，可以看到方差为
+\begin{equation}
+	\bm u_1^\top \bm S\bm u_1 = \lambda_1
+\end{equation}
+因此当我们将$\u_1$设置为与具有最大特征值$\lambda_1$的特征向量时，方差会达到最大值。这个特征向量被称为\emph{第一主成分}。
+
+可以使用类似的方法定义额外的主成分，方法是：在与所有已经考虑过的方向正交的方向中，选择最大化投影方差的方向。例如，我们考虑$M$维投影空间的情况，那么最大化投影数据方差的方向由协方差矩阵$\bm S$的$M$个特征向量$\bm u_1, \bm u_2, \ldots, \bm u_M$定义，对应的$M$个特征值是$\lambda_1, \lambda_2, \ldots, \lambda_M$。
+
+主成分分析涉及计算数据集的均值$\overline{\bm x}$和协方差矩阵$\bm S$，然后寻找$\bm S$的对应与$M$个最大特征值的特征向量。计算一个$D\times D$矩阵的完整的特征向量分解的代价为$\bm O(D^3)$。若只将数据投影到前$M$个主成分中，那么只需要寻找前$M$个特征向量和特征值，这可以使用更高效的算法，时间复杂度为$\bm O(MD^2)$，或者也可以使用EM算法。
+\subsection{最小误差形式}
+PCA的另一种形式，基于最小投影误差。先引入一个完备的单位正交集合$\{\bm u_i\}$，其中$i=1, \ldots, D$，且满足
+\begin{equation}
+	\bm u_i^\top u_j = \delta_{ij}
+\end{equation}
+由于是完备的，因此每个数据点可以唯一的表示为一个线性组合，即
+\begin{equation}
+	\bm x_n = \sum_{i=1}^{D}\alpha_{ni}\bm u_i
+\end{equation}
+其中，系数$\alpha_{ni}$对于不同的数据点来说是不同的。这相当于将坐标系旋转到了一个由$\{\bm u_i\}$表示的新坐标系。我们有$\alpha_{nj} = \bm x_n^\top \bm u_j$，不失一般性，我们有
+\begin{equation}
+	\label{eq:pca-9-9}
+	\bm x_n = \sum_{i=1}^{D}(\bm x_n^\top \bm u_i)\bm u_i
+\end{equation}
+我们的目标是限定数量$M<D$个变量的一种表示来近似数据点，这对应于在低维子空间的一个投影。因此，我们可以用下式来近似每个数据点$\bm x_n$
+\begin{equation}
+	\label{eq:pca-x_n}
+	\tilde{\bm x}_n = \sum_{i=1}^{M}z_{ni}\bm u_i + \sum_{i=M+1}^{D}b_i\bm u_i
+\end{equation}
+其中$\{z_{nj}\}$依赖于特定的数据点，而$\{b_i\}$是常数，对于所有的数据点都相同。可以选择$\{\bm u_i\}$，$\{z_{ni}\}$，$\{b_i\}$，从而最小化由维度降低带来的失真。失真的度量，可以使用原始数据点与它近似点$\title{\bm x}_n$之间的平方距离。因此目标函数是
+\begin{equation}
+	J = \frac{1}{N}\sum_{n=1}^{N}\|\bm x_n - \tilde{\bm x}_n \|^2
+\end{equation}
+考虑关于$\{z_{ni}\}$的最小化。代入$\tilde{\bm x}_n$的表达式，然后令它关于$z_{nj}$的导数等于零，有
+\begin{equation}
+	z_{nj} = \bm x_n^\top\bm u_j
+\end{equation}
+其中$j=1, \ldots, M$；类似地，令$J$关于$b_i$的导数等于零，我们有
+\begin{equation}
+	b_j = \tilde{\bm x}^\top\bm u_j
+\end{equation}
+其中，$j=M+1, \ldots, D$。将$z_{nj}$与$b_j$代入到式\ref{eq:pca-x_n}中，使用式\ref{eq:pca-9-9}中$\bm x_n$的展开式，可以得到
+\begin{equation}
+	\bm x_n - \tilde{\bm x}_n= \sum_{i=M+1}^{D}\left\{ (\bm x_n - \tilde{\bm x}_n )^\top \bm u_j\right\} \bm u_j
+\end{equation}
+然后就得到了失真度量$J$的表达式，它是一个纯粹的关于$\{\bm u_j\}$的函数，形式为
+\begin{equation}
+	J = \frac{1}{N}\sum_{n=1}^{N}\sum_{i=M+1}^{D}(\bm x_n^\top\bm u_i - \overline{\bm x}^\top\bm u_i)^2  = \sum_{i=M+1}^{D}\bm u_i^\top\bm S\bm u_i
+\end{equation}
 \end{document}
