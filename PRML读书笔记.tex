@@ -91,12 +91,25 @@
 \section{高斯分布}
 \section{指数族分布}
 
+\chapter{线性回归模型}
+\section{线性函数模型}
+\subsection{最大似然与最小平方误差}
+\subsection{最小平方误差的几何解释}
+\subsection{正则化的最小平方误差}
+\section{偏差-方差分解}
+\section{贝叶斯线性回归}
+\subsection{参数分布}
+\subsection{预测分布}
+
+\chapter{线性分类模型}
 
 \chapter{核方法}
 
 \chapter{稀疏核机}
+\section{最大边缘分类器}
 
 \chapter{图模型}
+\subsection{贝叶斯网络}
 
 \chapter{混合模型和EM}
 \section{K-means 算法}
@@ -242,20 +255,29 @@ EM算法是一个两阶段迭代优化算法。
 
 \section{EM算法实例}
 \subsection{用于混合高斯模型的EM}
+
 \subsection{伯努利分布的混合}
 \chapter{近似推断}
 
 \chapter{采样方法}
+\section{基本算法}
+\subsection{概率分布采样}
+\subsection{拒绝采样}
+\subsection{重要性采样}
+\section{马尔可夫链蒙特卡罗方法}
+\subsection{马尔可夫链}
+\subsection{Metropolis-Hastings算法}
+\section{吉布斯采样}
 
 \chapter{连续潜在变量}
 \section{主成分分析}
 主成分分析，或者称为PCA，是一种广泛使用的技术，应用的领域包括维度降低、有损数据压缩、特征抽取、数据可视化。有两种经常使用的PCA的定义：
 \begin{itemize}
 	\item PCA被定义为数据在被称为\emph{主子空间}的低维线性空间上的投影，使得投影数据的方差最大化
-	\item 也可以被定义为使得平均投影代价最小的线形投影，平均投影代价是指数据点和它们的投影之间的平均平方距离
+	\item 也可以被定义为使得平均投影代价最小的线性投影，平均投影代价是指数据点和它们的投影之间的平均平方距离
 \end{itemize}
 \subsection{最大方差形式}
-考虑一组观测数据集${\bm x_n}$，其中$n=1,\ldots,N$，$x_n$是一个$D$维欧几里得空间中的变量。考虑将数据投影到维度是$M<D$的空间中。
+考虑一组观测数据集${\bm x_n}$，其中$n=1,\ldots,N$，$\bm x_n$是一个$D$维欧几里得空间中的变量。考虑将数据投影到维度是$M<D$的空间中。
 
 首先，考虑在一维空间$(M=1)$上的投影。可以使用$D$维向量$\bm u_1$定义投影方法。为了计算方便和不失一般性，假定选择一个单位向量，而且$\bm u_1^{\top}\bm u_1 = 1$，这样每个数据点$\bm x_n$被投影到一个标量值$\bm u_1^{\top}\bm x_n$上。被投影数据的均值是$\bm u_1^{\top}\overline{\bm x}$，其中$
 \overline{\bm x}$是样本集合的均值，形式为
@@ -282,15 +304,15 @@ EM算法是一个两阶段迭代优化算法。
 \begin{equation}
 	\bm u_1^\top \bm S\bm u_1 = \lambda_1
 \end{equation}
-因此当我们将$\u_1$设置为与具有最大特征值$\lambda_1$的特征向量时，方差会达到最大值。这个特征向量被称为\emph{第一主成分}。
+因此当我们将$\bm u_1$设置为与具有最大特征值$\lambda_1$的特征向量时，方差会达到最大值。这个特征向量被称为\emph{第一主成分}。
 
-可以使用类似的方法定义额外的主成分，方法是：在与所有已经考虑过的方向正交的方向中，选择最大化投影方差的方向。例如，我们考虑$M$维投影空间的情况，那么最大化投影数据方差的方向由协方差矩阵$\bm S$的$M$个特征向量$\bm u_1, \bm u_2, \ldots, \bm u_M$定义，对应的$M$个特征值是$\lambda_1, \lambda_2, \ldots, \lambda_M$。
+可以使用类似的方法定义额外的主成分，方法是：在与所有已经考虑过的方向正交的方向中，选择使得投影数据方差最大化的方向。例如，我们考虑$M$维投影空间的情况，那么最大化投影数据方差的方向由协方差矩阵$\bm S$的$M$个特征向量$\bm u_1, \bm u_2, \ldots, \bm u_M$定义，对应的$M$个特征值是$\lambda_1, \lambda_2, \ldots, \lambda_M$。
 
-主成分分析涉及计算数据集的均值$\overline{\bm x}$和协方差矩阵$\bm S$，然后寻找$\bm S$的对应与$M$个最大特征值的特征向量。计算一个$D\times D$矩阵的完整的特征向量分解的代价为$\bm O(D^3)$。若只将数据投影到前$M$个主成分中，那么只需要寻找前$M$个特征向量和特征值，这可以使用更高效的算法，时间复杂度为$\bm O(MD^2)$，或者也可以使用EM算法。
+总结一下，主成分分析涉及计算数据集的均值$\overline{\bm x}$和协方差矩阵$\bm S$，然后寻找与$\bm S$对应的$M$个最大特征值的特征向量。寻找一个$D\times D$矩阵的完整的特征向量分解的代价为$\bm O(D^3)$。若只将数据投影到前$M$个主成分中，那么只需要寻找前$M$个特征向量和特征值，这可以使用更高效的算法，时间复杂度为$\bm O(MD^2)$，或者也可以使用EM算法。
 \subsection{最小误差形式}
 PCA的另一种形式，基于最小投影误差。先引入一个完备的单位正交集合$\{\bm u_i\}$，其中$i=1, \ldots, D$，且满足
 \begin{equation}
-	\bm u_i^\top u_j = \delta_{ij}
+	\bm u_i^\top \bm u_j = \delta_{ij}
 \end{equation}
 由于是完备的，因此每个数据点可以唯一的表示为一个线性组合，即
 \begin{equation}
@@ -316,14 +338,26 @@ PCA的另一种形式，基于最小投影误差。先引入一个完备的单�
 \end{equation}
 其中$j=1, \ldots, M$；类似地，令$J$关于$b_i$的导数等于零，我们有
 \begin{equation}
-	b_j = \tilde{\bm x}^\top\bm u_j
+	b_j = \overline{\bm x}^\top\bm u_j
 \end{equation}
 其中，$j=M+1, \ldots, D$。将$z_{nj}$与$b_j$代入到式\ref{eq:pca-x_n}中，使用式\ref{eq:pca-9-9}中$\bm x_n$的展开式，可以得到
 \begin{equation}
-	\bm x_n - \tilde{\bm x}_n= \sum_{i=M+1}^{D}\left\{ (\bm x_n - \tilde{\bm x}_n )^\top \bm u_j\right\} \bm u_j
+	\bm x_n - \tilde{\bm x}_n= \sum_{i=M+1}^{D}\left\{ (\bm x_n - \overline{\bm x})^\top \bm u_i\right\} \bm u_i
 \end{equation}
-然后就得到了失真度量$J$的表达式，它是一个纯粹的关于$\{\bm u_j\}$的函数，形式为
+然后就得到了失真度量$J$的表达式，它是一个纯粹的关于$\{\bm u_i\}$的函数，形式为
 \begin{equation}
 	J = \frac{1}{N}\sum_{n=1}^{N}\sum_{i=M+1}^{D}(\bm x_n^\top\bm u_i - \overline{\bm x}^\top\bm u_i)^2  = \sum_{i=M+1}^{D}\bm u_i^\top\bm S\bm u_i
 \end{equation}
+
+\subsection{高维数据的PCA}
+
+\section{概率PCA}
+\section{核PCA}
+\section{非线形隐变量模型}
+\subsection{独立成分分析}
+\subsection{自编码器}
+\section{非线性流行建模}
+
+\chapter{组合模型}
+
 \end{document}
