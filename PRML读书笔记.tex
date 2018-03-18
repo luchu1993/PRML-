@@ -87,6 +87,39 @@
 
 \chapter{概率分布}
 \section{二元变量}
+首先考虑一个二元变量$x \in \{0, 1\}$，其中$x=1$的概率记作参数$\mu$，
+\begin{equation}
+	p(x=1\ |\ \mu) = \mu
+\end{equation}
+其中$0 \leq \mu \leq 1$。显然，$p(x=0\ |\ \mu) = 1-\mu$。$x$的概率分布因此可以写成
+\begin{equation}
+	\mathrm{Bern}(x \ |\ \mu) = \mu^x(1-u)^{1-x}
+\end{equation}
+这叫做\emph{伯努利分布}。分布的均值和方差
+\begin{equation}
+	\mathbb E[x] = \mu
+\end{equation}
+\begin{equation}
+	\mathrm{Var}[x] = \mu(1-\mu)
+\end{equation}
+现在假设有一个观测数据集$\mathcal D = \{x_1, \ldots, x_N\}$，且每次观测数据都是独立地从$p(x\ |\ \mu)$中抽取的，因此可以构造关于$\mu$的似然函数
+\begin{equation}
+	p(\mathcal D \ |\ \mu) = \prod_{n=1}^{N}p(x_n\ |\ \mu) = \prod_{n=1}^{N}\mu^{x_n}(1-\mu)^{1-x_n}
+\end{equation}
+以频率学家的观点来看，可以通过最大化似然函数来估计$\mu$的值，或者，等价的，最小化交叉熵。在伯努利分布的形式下，对数似然函数为
+\begin{equation}
+	\log p(\mathcal D \ |\ \mu) = \sum_{n=1}^{N}\log p(x_n\ |\ \mu) = \sum_{n=1}^{N}\left\{ x_n\log \mu + (1-x_n)\log(1-\mu) \right\}
+\end{equation}
+如果令$\log p(\mathcal{D}\ |\ \mu)$关于$\mu$的导数等于零，就得到了最大似然的估计值
+\begin{equation}
+	\label{eq:bern_ml}
+	\mu_{\mathrm{ML}} = \frac{1}{N}\sum_{n=1}^{N}x_n
+\end{equation}
+这样称为样本均值。如果我们把数据集里$x=1$的观测数量记作$m$，那么可以把公式\ref{eq:bern_ml}写成下面的形式
+\begin{equation}
+	\mu_{\mathrm{ML}} = \frac{m}{N}
+\end{equation}
+
 \section{多项式变量}
 \section{高斯分布}
 \section{指数族分布}
@@ -109,7 +142,7 @@
 \section{最大边缘分类器}
 
 \chapter{图模型}
-\subsection{贝叶斯网络}
+\section{贝叶斯网络}
 
 \chapter{混合模型和EM}
 \section{K-means 算法}
