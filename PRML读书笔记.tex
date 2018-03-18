@@ -350,7 +350,34 @@ PCA的另一种形式，基于最小投影误差。先引入一个完备的单�
 \end{equation}
 
 \subsection{高维数据的PCA}
+在PCA的一些应用中，会出现数据维度远大于数据样本的个数。例如将PCA应用到由几百张图片构成的数据集合，此时，每个图片的维度为几百万维，远大于样本个数。若数据维度为$D$，样本个数为$N$，$(N << D)$，$N$个数据点定义了一个最多为$N-1$维的子空间，运行PCA会发现至少$N-D+1$个特征值为零；另外，寻找$D\times D$矩阵的特征向量算法的计算复杂度为$\bm O(D^3)$，对于高维度的数据来说，在计算上也不可行。
 
+可以使用下面的方法解决这个问题。$\bm X$定义为$(D\times D)$维中心数据矩阵，它的第$n$行为$(\bm x_n - \overline{\bm x})^\top$。这样，数据的协方差矩阵可以写作$\bm S = \frac{1}{N}\bm X^\top \bm X$，对应的特征向量方程变成了
+\begin{equation}
+	\frac{1}{N}\bm X^\top \bm X\bm u_i = \lambda_i\bm u_i
+\end{equation}
+将两侧左乘一个$\bm X$，可得
+\begin{equation}
+	\frac{1}{N}\bm X \bm X^\top(\bm X\bm u_i) = \lambda_i(\bm X\bm u_i)
+\end{equation}
+若定义$\bm v_i = \bm X\bm u_i$，就有
+\begin{equation}
+\label{eq:h_pca}
+	\frac{1}{N}\bm X\bm X^\top\bm v_i = \lambda_i\bm v_i
+\end{equation}
+它是$N\times N$矩阵$\frac{1}{N}\bm X\bm X^\top$的一个特征向量方程，且这个矩阵与原始的协方差矩阵有相同的$N-1$个特征值，原始协方差矩阵本身还有额外$D-N+1$个值为零的特征值。我们可以在低维空间中解决这个问题，计算代价是$\bm O(N^3)$而不是$\bm O(D^3)$。
+
+为了得到原始协方差矩阵的特征向量，可以将公示\ref{eq:h_pca}两侧左乘$\bm X^\top$，得
+\begin{equation}
+	(\frac{1}{N}\bm X^\top\bm X)(\bm X^\top\bm v_i) = \lambda_i(\bm X^\top\bm v_i)
+\end{equation}
+从中，我们可以看到，$(\bm X^\top \bm v_i)$是原始数据协方差矩阵的一个特征向量，对应的特征值是$\lambda_i$。但是，这个特征向量的长度不一定为$1$，即$\bm u_i \propto \bm X^\top \bm v_i$。将此向量归一化，就可以得到$\bm u_i$，且$\|\bm u_i\|=1$。假设$\bm v_i$是单位向量，可以通过以下方式归一化
+\begin{equation}
+	\label{eq:u_i}
+	\bm u_i = \frac{1}{(N\lambda_i)^\frac{1}{2}}\bm X^\top\bm v_i
+\end{equation}
+
+总结一下，使用这种方法，首先计算$\bm X \bm X^\top$，然后找到它的特征向量和特征值，之后使用公式\ref{eq:u_i}计算原始数据协方差矩阵的特征向量。
 \section{概率PCA}
 \section{核PCA}
 \section{非线形隐变量模型}
