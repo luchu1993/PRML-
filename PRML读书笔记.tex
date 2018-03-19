@@ -234,7 +234,37 @@ Beta分布的均值和方差为
 \section{多项式变量}
 \section{高斯分布}
 \section{指数族分布}
-
+我们目前所讨论的概率分布都属于\emph{指数族分布}的特例。参数为$\bm\eta$的变量$\bm x$的指数族分布定义为具有如下形式的概率分布的集合
+\begin{equation}
+	\label{eq:exp-family}
+	p(\bm x\ |\ \bm\eta) = h(\bm x)g(\bm \eta)\exp\{\bm\eta^\top\bm u(\bm x) \}
+\end{equation}
+其中$\bm x$可能是标量或者向量，可能是离散的或者连续的。函数$g(\bm x)$可以看成是系数，确保了概率分布的归一化，因此满足
+\begin{equation}
+	g(\bm\eta)\int h(\bm x)\exp\{\bm \eta^\top\bm u(\bm x)\} \ \mathrm{d}\bm x = 1
+\end{equation}
+考虑伯努利分布的指数族分布形式
+\begin{equation}
+	p(x\ |\ \mu) = \mathrm{Bern}(x\ |\ \mu) = \mu^x(1-\mu)^{1-x}
+\end{equation}
+将右侧写成对数的指数形式
+\begin{align}
+	p(x\ |\ \mu) &= \exp\{x\log \mu + (1-x)\log (1-\mu)\} \notag \\
+	&= (1-\mu)\exp\left\{ \log\left( \frac{\mu}{1-\mu} \right) \right\}
+\end{align}
+与公式\ref{eq:exp-family}比较，可以看出
+\begin{equation}
+	\eta = \log\left( \frac{\mu}{1-\mu}\right)	
+\end{equation}
+从中解出$\mu$, 得$\mu=\sigma(x)$，其中
+\begin{equation}
+	\sigma(x) = \frac{1}{1+\exp(-\eta)}
+\end{equation}
+这被称为logistic sigmoid函数。因此，伯努利分布的指数族分布形式为
+\begin{equation}
+	p(x\ |\ \mu) = \sigma(-\eta)\exp(\eta x)
+\end{equation}
+其中我们使用了$1-\sigma(\eta)=\sigma(-\eta)$。
 \chapter{线性回归模型}
 给定一个由$N$个观测值$\{\bm x_n\}$组成的数据集，其中$n=1, \ldots, N$，以及对应的目标值$\{t_n\}$，我们的目标是预测给定的$\bm x$值的情况下，$t$的值。最简单的方法是直接建立一个适当的函数$y(\bm x)$，对于新的输入$\bm x$，这个函数能够直接给出对应的$t$的预测。更一般地，从一个概率分布$p(t\ |\ \bm x)$建模，表示对于给定一个$\bm x$，对于$t$的不确定性。
 \section{线性函数模型}
