@@ -236,8 +236,73 @@ Beta分布的均值和方差为
 \section{指数族分布}
 
 \chapter{线性回归模型}
+给定一个由$N$个观测值$\{\bm x_n\}$组成的数据集，其中$n=1, \ldots, N$，以及对应的目标值$\{t_n\}$，我们的目标是预测给定的$\bm x$值的情况下，$t$的值。最简单的方法是直接建立一个适当的函数$y(\bm x)$，对于新的输入$\bm x$，这个函数能够直接给出对应的$t$的预测。更一般地，从一个概率分布$p(t\ |\ \bm x)$建模，表示对于给定一个$\bm x$，对于$t$的不确定性。
 \section{线性函数模型}
+最简单的模型是对输入变量的线性组合
+\begin{equation}
+	y(\bm x, \bm \omega) = \omega_0 + \omega_1 x_1 + \ldots +\omega_D x_D
+\end{equation}
+其中$\bm x=(x_1, \ldots, x_D)^\top$，这通常被简单的称为\emph{线性回归}。这个模型的关键性质是它是参数$\omega_0, \ldots, \omega_D$的一个线性函数。
+
+另外，我们也可以扩展模型的类别：将输入变量固定的非线性函数进行组合，形式为
+\begin{equation}
+	y(\bm x,\bm \omega) = \omega_0 + \sum_{j=1}^{M-1}\omega_j\phi_j(\bm x)
+\end{equation}
+其中$\phi_j(\bm x)$被称为基函数。通过把下标$j$的最大值记作$M-1$，模型中总参数个数为$M$个。参数$\omega_0$被称为\emph{偏置参数}。若定义一个额外的基函数$\phi_0(\bm x)=1$，这时
+\begin{equation}
+	y(\bm x, \bm \omega) = \sum_{j=1}^{M-1}\omega_j\phi_j(\bm x) = \bm \omega^\top\bm \phi(\bm x)
+\end{equation}
+其中$\bm\omega=(\omega_0, \ldots, \omega_{M-1})^\top$，$\bm \phi =(\phi_0, \ldots, \phi_{M-1})^\top$
 \subsection{最大似然与最小平方误差}
+假设目标变量$t$由确定的函数$y(\bm x, \bm\omega)$给出，这个函数被附加了\emph{高斯噪声}，即
+\begin{equation}
+	t = y(\bm x, \bm \omega) + \epsilon
+\end{equation}
+其中，$\epsilon$是一个均值为零，精度(方差的倒数)为$\beta$的随机变量。因此，有
+\begin{equation}
+	p(t\ |\ \bm x,\bm \omega, \beta) = \mathcal N(t\ |\ y(\bm x, \bm \omega), \beta^{-1})
+\end{equation}
+考虑有一个数据集$\bm X = \{\bm x_1, \ldots, \bm x_N\}$，对应的目标值为$t_1, \ldots, t_N$，把目标值$\{t_n\}$组成一个列向量，记作$\bm t$。似然函数为
+\begin{equation}
+	p(\bm t\ |\ \bm X, \bm \omega, \beta) = \prod_{n=1}^{N}\mathcal N(t_n\ |\ \bm\omega^\top\bm\phi(\bm x_n), \beta^{-1})
+\end{equation}
+省略符号$\bm X$, 并取似然对数，使用一元高斯分布的形式，有
+\begin{align}
+	\log p(\bm t\ |\ \bm\omega, \beta^{-1}) &= \sum_{n=1}^{N}\log\mathcal N(t_n\ |\ \bm\omega^\top\bm\phi(\bm x_n), \beta^{-1}) \notag \\
+	&= \frac{N}{2}\log\beta - \frac{N}{2}\log(2\pi)-\beta E_D(\bm \omega)
+\end{align}
+其中平方和误差函数被定义为
+\begin{equation}
+	E_D(\bm \omega) = \frac{1}{2}\sum_{n=1}^{N}\{t_n-\bm\omega^\top\bm\phi(\bm x_n) \}^2
+\end{equation}
+之后，最大化似然函数。首先关于$\bm \omega$最大化。在这里，\emph{最大化似然函数与最小化平方和误差等价}。对$\bm \omega$求梯度，得
+\begin{equation}
+	\nabla_{\bm\omega}\log p(\bm t\ |\ \bm\omega, \beta) = \beta\sum_{n=1}^{N}\{t_n-\bm\omega^\top\bm\phi(\bm x_n)\}\bm\phi(\bm x_n)^\top
+\end{equation}
+令这个梯度等于零，可得
+\begin{equation}
+	0 = \sum_{n=1}^{N}t_n\bm\phi(\bm x_n)^\top - \bm\omega^\top\left( \sum_{n=1}^{N}\bm\phi(\bm x_n)\phi(\bm x_n)^\top \right)
+\end{equation}
+求解$\bm\omega$，我们有
+\begin{equation}
+	\bm\omega_{\mathrm{ML}} = (\bm\Phi^\top\bm\Phi)^{-1}\bm\Phi^\top\bm t
+\end{equation}
+这里，$\bm\Phi$是一个$N\times M$的矩阵，它的元素为$\bm\Phi_{nj} = \phi_j(\bm x_n)$，即
+\begin{equation}
+	\bm\Phi = \left(
+	\begin{matrix}
+		\phi_0(\bm x_1) & \phi_1(\bm x_1) &\cdots & \phi_{M-1}(\bm x_1) \\
+		\phi_0(\bm x_2) & \phi_1(\bm x_2) &\cdots & \phi_{M-1}(\bm x_2) \\
+		\vdots & \vdots & \ddots & \vdots \\
+		\phi_0(\bm x_N) & \phi_1(\bm x_N) &\cdots & \phi_{M-1}(\bm x_N) \\
+	\end{matrix}
+	\right)
+\end{equation}
+式中
+\begin{equation}
+	\bm\Phi^\dag \equiv (\bm\Phi^\top\bm\Phi)^{-1}\bm\Phi
+\end{equation}
+被称为$\bm\Phi$矩阵的Moore-Penrose\emph{伪逆矩阵}，可以被看成是逆矩阵对非方阵的一种推广。实际上，若$\bm\Phi$是方阵并且可逆，$\bm\Phi^\dag=\bm\Phi^{-1}$。
 \subsection{最小平方误差的几何解释}
 \subsection{正则化的最小平方误差}
 \section{偏差-方差分解}
