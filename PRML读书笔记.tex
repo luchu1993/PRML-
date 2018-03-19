@@ -83,8 +83,78 @@
 形式化证明连续变量的加和规则和乘积规则需要用到\emph{测度论}的数学分支。
 
 \subsection{期望和方差}
-\section{信息论}
+在概率分布$p(x)$下，函数$f(x)$的期望
+\begin{equation}
+	\mathbb E[f(x)] = \sum_{x}p(x)f(x) 
+\end{equation}
+连续变量的期望为
+\begin{equation}
+	\mathbb E[f(x)] = \int_{-\infty}^{+\infty}p(x)f(x)\ \mathrm{d}x
+\end{equation}
+在给定$N$个独立同分布的样本点时，可以通过求平均来得到期望的一个估计值
+\begin{equation}
+	\mathbb E[f] \simeq \frac{1}{N}\sum_{n=1}^{N} f(x_n)
+\end{equation}
+有时候也需要考虑多变量的期望，例如
+\begin{equation}
+	\mathbb E_x[f(x, y)]
+\end{equation}
+表示$f(x, y)$关于$x$的期望。$\mathbb E_x[f(x, y)]$是关于$y$的函数。
+同样地，也可以表示关于一个条件分布的期望，即
+\begin{equation}
+	\mathbb E_x[f\ |\ y] = \sum_x p(x\ |\ y)f(x)
+\end{equation}
 
+$f(x)$的方差被定义为
+\begin{equation}
+	\mathrm{Var}[f(x)] = \mathbb E[(f(x)-\mathbb E[f(x)])^2]
+\end{equation}
+展开之后，可以得到
+\begin{equation}
+	\mathrm{Var}[f(x)] = \mathbb E[f(x)^2] - \mathbb E[f(x)]^2
+\end{equation}
+特别的，关于$x$的方差
+\begin{equation}
+	\mathrm{Var}[x] = \mathbb E[x^2] - \mathbb E[x]^2
+\end{equation}
+对于两个变量$x$和$y$，协方差被定义为
+\begin{equation}
+	\mathrm{Cov}(x, y) = \mathbb E[(x-\mathbb E[x])(y - \mathbb E[y])]
+\end{equation}
+
+在两个随机向量$\bm x$和$\bm y$的情形下，协方差是一个矩阵
+\begin{equation}
+	\mathrm{Cov}[\bm x, \bm y] = \mathbb E_{\bm x, \bm y}[(\bm x - \mathbb E[\bm x])(\bm y - \mathbb E[\bm y])^\top]
+\end{equation}	
+\section{信息论}
+随机变量$x$的\emph{熵}
+\begin{equation}
+	H[x] = -\sum_{x}p(x)\log_2p(x)
+\end{equation}
+对于连续型变量$x$的\emph{微分熵}
+\begin{equation}
+	H[x] = -\int p(x)\log p(x)\ \mathrm{d}x
+\end{equation}
+最大微分熵的分布是高斯分布
+\begin{equation}
+	p(x) = \frac{1}{(2\pi\sigma^2)}\exp\left\{ -\frac{(x-\mu)^2}{2\sigma^2} \right\}
+\end{equation}
+对高斯分布求微分熵，可以得到
+\begin{equation}
+	H[x] = \frac{1}{2}\{1+\log(2\pi\sigma^2)\}
+\end{equation}
+可以看到，熵随着分布宽度(即$\sigma^2$)的增加而增加。这个结果也表明，与离散熵不同，微分熵可以为负。
+
+假设有一个联合概率分布$p(\bm x, \bm y)$。我们从这个分布中抽取一对$\bm x$和$\bm y$。如果$\bm x$的值已知，$\bm y$的\emph{条件熵}为
+\begin{equation}
+	H[\bm y\ |\ \bm x] = -\iint p(\bm x, \bm y)\log p(\bm y\ |\ \bm x)\ \mathrm{d}\bm x\mathrm{d}\bm y 
+\end{equation}
+利用概率乘积规则，很容易得到，条件熵满足下面关系
+\begin{equation}
+	H[\bm x, \bm y] = H[\bm y\ |\ \bm x] + H[\bm x]
+\end{equation}
+其中$H[\bm x, \bm y]$是概率分布$p(\bm x, \bm y)$的微分熵，$H[\bm x]$是边缘分布$p(\bm x)$的微分熵。
+\subsection{相对熵(KL散度)和互信息}
 \chapter{概率分布}
 \section{二元变量}
 首先考虑一个二元变量$x \in \{0, 1\}$，其中$x=1$的概率记作参数$\mu$，
@@ -160,7 +230,7 @@ Beta分布的均值和方差为
 \begin{equation}
 	p(\mu\ |\ m, l, a, b) = \frac{\Gamma(m+a+b+l)}{\Gamma(m+a)\Gamma(l+b)}\mu^{m+a-1}(1-\mu)^{l+b-1}
 \end{equation}
-其中$m$和$l$分别为$N$此观测中，$x=1$与$x=0$的次数。
+其中$m$和$l$分别为$N$次观测中，$x=1$与$x=0$的次数。
 \section{多项式变量}
 \section{高斯分布}
 \section{指数族分布}
