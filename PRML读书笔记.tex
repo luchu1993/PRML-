@@ -155,6 +155,28 @@ $f(x)$的方差被定义为
 \end{equation}
 其中$H[\bm x, \bm y]$是概率分布$p(\bm x, \bm y)$的微分熵，$H[\bm x]$是边缘分布$p(\bm x)$的微分熵。
 \subsection{相对熵(KL散度)和互信息}
+考虑某个真实分布$p(x)$，我们使用一个近似分布$q(x)$来对它建模。衡量这两个分布之间的相似度，可以使用两个分布之间的\emph{相对熵}，也称为KL\emph{散度}
+\begin{align}
+	\mathrm{KL}(p\ \|\ q) &= -\int p(\bm x)\log q(\bm x)\ \mathrm{d}\bm x -\left( -\int p(\bm x)\log q(\bm x)\ \mathrm{d}\bm x \right) \notag \\
+						& = -\int p(\bm x)\log \left\{ \frac{q(\bm x)}{p(\bm x)} \right\}\ \mathrm{d}\bm x
+\end{align}
+注意，KL散度不是对称量，即$\mathrm{KL}(p\ \|\ q) \neq \mathrm{KL}(q\ \|\ p)$。另外KL散度满足$\mathrm{KL}(p\ \|\ q) \geq 0$，当且仅当$p(\bm x) = q(\bm)$时取得等号。可以使用Jensen不等式来证明。Jensen不等式如下
+\begin{equation}
+	f(\mathbb E[x]) \leq \mathbb E[f(x)]
+\end{equation}
+其中$\mathbb E[\cdot]$表示期望，$f(x)$为凸函数。
+
+
+现在考虑由$p(\bm x, \bm y)$给出的两个变量$\bm x$，$\bm y$组成的数据集。如果变量是独立的，那么联合概率分布可以分解为边缘概率的乘积$p(\bm x, \bm y) = p(\bm x)p(\bm y)$。如果变量不是独立的，那么我们可以通过考察联合概率分布与边缘概率分布乘积之间的KL散度来判断它们是否接近于独立。此时，KL散度为
+\begin{align}
+	I[\bm x, \bm y] &\equiv \mathrm{KL}(p(\bm x, \bm y)\ \|\ p(\bm x)p(\bm y)) \notag \\
+	&= -\iint p(\bm x, \bm y) \log \left(\frac{p(\bm x)p(\bm y)}{p(\bm x, \bm y)} \right) \ \mathrm{d}\bm x\mathrm{d}\bm y
+\end{align}
+这称为变量$\bm x$与变量$\bm y$之间的互信息。根据KL散度的性质，有$I[\bm x, \bm y] \geq 0$，当且仅当$\bm x$与$\bm y$相互独立时取得等号。使用概率规则和乘积规则，可以看到互信息和条件熵之间的关系为
+\begin{equation}
+	I[\bm x, \bm y] = H[\bm x] - H[\bm x\ |\ \bm y] = H[\bm y] - H[\bm y\ |\ \bm x]
+\end{equation}
+互信息可以看作是知道了$\bm y$值而造成的$\bm x$的不确性减少(反之亦然)。从贝叶斯的观点来看，可以把$p(\bm x)$看成是$\bm x$的先验分布，把$p(\bm x\ |\ \bm y)$看成观测到新数据$\bm y$之后的后验分布。互信息表示一个新观测数据$\bm y$造成的$\bm x$的不确定性减少。
 \chapter{概率分布}
 \section{二元变量}
 首先考虑一个二元变量$x \in \{0, 1\}$，其中$x=1$的概率记作参数$\mu$，
