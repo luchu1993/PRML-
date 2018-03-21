@@ -658,6 +658,43 @@ PCA的另一种形式，基于最小投影误差。先引入一个完备的单�
 \subsection{自编码器}
 \section{非线性流行建模}
 
+\chapter{顺序数据}
+\section{马尔可夫模型}
+考虑一组数据$\{\bm x_1, \ldots, \bm x_N\}$，它们之间的联合概率分布使用乘积规则可以表示为如下
+\begin{equation}
+	p(\bm x_1, \ldots, \bm x_N)  = p(\bm x_1)\prod_{n=2}^{N}p(\bm x_n\ |\ x_1, \ldots, \bm x_{n-1})
+\end{equation}
+如果假设右侧的每个条件概率分布只与最近的一次观测有关，独立于其他所有之前的观测，那么就得到了\emph{一阶马尔科夫链}。这个模型中, $N$此数据观测的联合概率分布为
+\begin{equation}
+	p(\bm x_1, \ldots, \bm x_N) = p(\bm x_1)\prod_{n=2}^{N}p(\bm x_n\ |\ x_{n-1})
+\end{equation}
+在这种模型的大部分应用中，条件概率分布$p(\bm x_n\ |\ \bm x_{n-1})$被限制为相等的，这个模型被称为\emph{同质马尔可夫链}。
+
+虽然这比数据间独立的模型要一般一些，但是还是非常受限。对一些序列数据来说，连续若干个观测变量会对下一次预测提供重要的信息。一种让更早的观测产生影响的方法是使用更高阶的马尔可夫链，例如\emph{二阶马尔可夫链}，其联合概率分布为
+\begin{equation}
+	p(\bm x_1, \ldots, \bm x_N) = p(\bm x_1)p(\bm x_2\ |\ \bm x_1)\prod_{n=3}^{N}p(\bm x_n\ |\ \bm x_{n-1}, \bm x_{n-2})
+\end{equation}
+
+假如我们想构造任意阶数不受马尔可夫假设限制的序列模型时，同时能够使用较少的参数，可以引入额外的隐变量来使得复杂的模型能够从简单的模型中构建。对于每个观测值$\bm x_n$，引入一个隐变量$\bm z_n$(类型和维度可以与$\bm x_n$不同)。现在假设隐变量$\bm z_n$之间构成马尔可夫链，得到的图模型如图\ref{fig:HMM}所示。它满足如下的条件独立性质：在给定$\bm z_n$的条件下，$\bm z_{n-1}$与$\bm z_{n+1}$条件独立
+\begin{equation}
+	\bm z_{n-1} \perp \bm z_{n+1} \ |\ \bm z_n
+\end{equation} 
+这个模型的联合概率分布为
+\begin{equation}
+	p(\bm x_1, \ldots, \bm x_N, \bm z_1, \ldots, \bm z_N) = p(\bm z_1)\left [ \prod_{n=2}^{N}p(\bm z_n\ |\ \bm z_{n-1}) \right ]\prod_{n=1}^{N}p(\bm x_n\ |\ \bm z_n)
+\end{equation}
+\begin{figure}
+	\centering
+	\includegraphics[width=6cm]{HMM}
+	\caption{使用隐变量的马尔可夫链来表示顺序数据，每个观测值都一个对应的隐变量的状态为条件。}
+	\label{fig:HMM}
+\end{figure}
+
+对顺序数据来说，图\ref{fig:HMM}描述了两个重要模型。如果隐变量是离散的，那么我们得到了隐马尔可夫模型或者HMM。在HMM中，观测变量可以是离散的或者连续的，并且可以使用许多不同条件概率分布进行建模。如果隐变量和观测变量都是高斯变量(节点的条件概率分布对于父节点的依赖是线性高斯的形式)，那么就得到了线性动态系统(linear dynamical system)。
+\section{隐马尔可夫模型}
+\section{线性动态系统}
+
+
 \chapter{组合模型}
 
 \end{document}
