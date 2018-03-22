@@ -10,7 +10,7 @@
 \usepackage{hyperref}
 \usepackage{graphicx}
 
-\title{\textbf{PRML读书笔记} }
+\title{\textbf{模式识别与机器学习\\ 读书笔记} }
 \author{C. Lu}
 
 
@@ -501,11 +501,11 @@ EM算法是一个两阶段迭代优化算法。
 假设当前的参数$\bm\theta^{\mathrm{old}}$，在\emph{E步骤}中，下界$\mathcal L(q, \bm\theta^{\mathrm{old}})$关于$q(\bm Z)$最大化，而$\bm\theta^{old}$保持固定。当KL散度为零时，即得到了最大化的解。换句话说，最大值出现在$q(\bm Z)$与后验概率分布$p(\bm Z\ |\ \bm X, \bm\theta)$相等时，KL散度等于零，此时，下界等于最大似然函数。
 
 在接下来的\emph{M步骤}中，分布$q(\bm Z)$保持固定，下界$\mathcal L(q, \bm\theta)$关于$\bm\theta$最大化，得到了某个新的值$\bm\theta^{\mathrm{new}}$，这会使得下界$\mathcal L$增大。同时也会使得对数似然增大，因为概率分布$q$由旧的参数值确定，并且在\emph{M步骤}保持固定，因此不会等于新的后验分布$p(\bm Z\ |\ \bm X,\bm\theta^{\mathrm{new}})$，从而KL散度非零；而且对数似然的增加量大于下界$\mathcal L(q, \bm\theta)$的增加量。在\emph{E步骤}之后，下界的形式为
-\begin{align*}
-	\mathcal L(q, \bm\theta) &= \sum_{\bm Z}p(\bm Z\ |\ \bm X, \bm\theta^{\mathrm{old}})\log p(\bm X, \bm Z\ |\ \bm\theta)\\
-	& \ \ \ \ - \sum_{\bm Z}p(\bm Z\ |\ \bm X,\bm\theta^{\mathrm{old}})\log p(\bm Z\ |\ \bm X, \bm\theta^{\mathrm{old}}) \\
+\begin{align}
+	\mathcal L(q, \bm\theta) &= \sum_{\bm Z}p(\bm Z\ |\ \bm X, \bm\theta^{\mathrm{old}})\log p(\bm X, \bm Z\ |\ \bm\theta) \notag \\
+	& \ \ \ \ - \sum_{\bm Z}p(\bm Z\ |\ \bm X,\bm\theta^{\mathrm{old}})\log p(\bm Z\ |\ \bm X, \bm\theta^{\mathrm{old}}) \notag \\
 	&= \mathcal Q(\bm\theta, \bm\theta^{\mathrm{old}}) + \text{常数}
-\end{align*}
+\end{align}
 其中常数是$q$的熵，与$\bm \theta$无关。从而，在\emph{M步骤}中，最大化的量是\emph{完整数据对数似然函数的期望}。完整的EM如算法\ref{algo:em}所示。
 \begin{algorithm}
 \caption{用于含有隐变量最大似然函数参数估计的EM算法}
@@ -528,7 +528,121 @@ EM算法是一个两阶段迭代优化算法。
 
 \section{EM算法实例}
 \subsection{用于混合高斯模型的EM}
+现在考虑将EM算法的隐变量观点用于一个具体的例子，即高斯混合模型。我们的目标是是最到化对数似然函数\ref{eq:6-15}，这是使用观测数据集$\bm X$计算的。这种情况比单一的高斯困难，因为求和出现在了对数运算内部。假设除了观测数据集$\bm X$，还有对应的离散变量$\bm Z$。现在考虑对完整数据$\{\bm X, \bm Z\}$最大化。完整数据集的似然函数的形式为
+\begin{equation}
+	p(\bm X, \bm Z\ |\ \bm \mu, \bm \Sigma, \bm \pi) = \prod_{n=1}^{N}\prod_{k=1}^{K}\pi_k^{z_{nk}}\mathcal N(\bm x_n\ |\ \bm\mu_k, \bm\Sigma_k)^{z_{nk}}
+\end{equation}
+其中$z_{nk}$表示$\bm z_n$的第$k$个分量。取对数，有
+\begin{equation}
+	\log p(\bm X, \bm Z\ |\ \bm\mu, \bm\Sigma, \bm\pi) = \sum_{n=1}^{N}\sum_{k=1}^{K}z_{nk}\left\{ \log\pi_k+\log\mathcal N(\bm x_n\ |\ \bm\mu_k, \bm\Sigma_k) \right\}
+\end{equation}
+现在将完全数据的对数似然对$\bm Z$的后验概率分布求期望。后验概率分布为
+\begin{equation}
+	p(\bm Z\ |\ \bm X, \bm \mu, \bm\Sigma, \bm\pi) = \prod_{n=1}^{N}p(\bm z_n\ |\ \bm x_n, \bm \mu,\bm\Sigma, \bm\pi)
+\end{equation}
+在这个分布下, $z_{nk}$的期望为
+\begin{align}
+	\mathbb E_{\bm Z}[z_{nk}] & = \sum_{\bm z_1}\cdots\sum_{\bm z_N} z_{nk}p(\bm Z\ |\ \bm X, \bm \theta) \notag \\
+	& = \sum_{\bm z_1}p(\bm z_1\ |\ \bm x_n, \bm\theta) \cdots \sum_{\bm z_n}z_{nk}p(\bm z_n\ |\ \bm x_n, \bm\theta) \cdots \sum_{\bm z_N}p(\bm z_N\ |\ \bm x_n, \bm\theta) \notag \\
+	& = \sum_{\bm z_n}z_{nk}p(\bm z_n\ |\ \bm x_n, \bm\theta) \notag \\
+	& = p(z_{nk} = 1\ |\ \bm x_n, \bm\theta)
+\end{align}
+其中$\bm\theta = (\bm\mu, \bm\Sigma, \bm\pi)$。利用贝叶斯公式，有
+\begin{align}
+	p(z_{nk}=1\ |\ \bm x_n, \bm\theta) &= \frac{p(z_{nk}=1)p(\bm x_n\ |\ z_{nk}=1)}{\sum_{j=1}^{K}p(z_{nj}=1)p(\bm x_n \ |\ z_{nj}=1)} \notag \\
+	& = \frac{\pi_k \mathcal N(\bm x_n\ |\ \bm\mu_k, \bm\Sigma_k)}{\sum_{j=1}^{K}\pi_j\mathcal N(\bm x_n\ |\ \bm\mu_j, \bm\Sigma_j)} \notag \\
+	& \equiv \gamma(z_{nk})
+\end{align}
+$\gamma(z_{nk})$被定义为数据点$\bm x_n$种含有来自于第$k$个高斯分布的“成分”。
+于是，完整数据的对数似然的期望值为
+\begin{equation}
+	\label{eq:gmm-exp}
+	\mathbb E_{\bm Z}\left[\log p(\bm X,\bm Z\ |\ \bm\mu,\bm\Sigma,\bm \pi) \right] = \sum_{n=1}^{N}\sum_{k=1}^K\gamma(z_{nk})\left\{\log\pi_k + \log\mathcal N(\bm x_n\ |\ \bm\mu_k, \bm\Sigma_k)\right\}
+\end{equation}
+我们使用旧的参数$\left\{ \bm\mu^{old}, \bm\Sigma^{old}, \bm\pi^{old} \right\}$计算$\gamma(z_{nk})$(\emph{E步骤})；之后保持$\gamma(z_{nk})$不变，关于$\bm \mu_k$,$ \bm\Sigma_k$, $\pi_k$最大化(\emph{M步骤})，得到新的$\left\{ \bm\mu^{new}, \bm\Sigma^{new}, \bm\pi^{new} \right\}$。
 
+在进行M步骤之前，需要先参考一些关于矩阵求导数的运算，具体如下
+\begin{equation}
+	\sum_{i=1}^N\bm x_i^\top\bm S\bm x_i = \mathrm{Tr}(\bm S\sum_{i=1}^N\bm x_i\bm x_i^\top)
+\end{equation}
+\begin{equation}
+	\frac{\partial\mathrm{Tr}(\bm A\bm B)}{\partial\bm A} = \bm B^\top
+\end{equation}
+\begin{equation}
+	\frac{\partial}{\partial\bm A}\log|\bm A| = (\bm A^{-1})^\top 
+\end{equation}
+
+现在关于$\pi_k$最大化。注意到由于$\sum_{k=1}^{K}\pi_k=1$的限制，可以使用拉格朗日乘数法进行优化。构造拉格朗日函数为
+\begin{equation}
+	\mathcal L(\bm\pi, \lambda) = \sum_{n=1}^N\sum_{k=1}^K\gamma(z_{nk})\log \pi_k+ \lambda(1-\sum_{k=1}^K\pi_k)
+\end{equation}
+对$\pi_k$求导，并令其等于零，有
+\begin{equation}
+	\frac{1}{\lambda}\sum_{n=1}^N\gamma(z_{nk}) = \pi_k,\ \ \ k=1, \ldots, N
+\end{equation}
+又由$\sum_{k=1}^{K}\pi_k=1$，得出$\lambda=N$，所以更新后的$pi_k$为
+\begin{equation}
+	\pi_k^{new} = \frac{N_k}{N}
+\end{equation}
+其中$N_k = \sum_{n=1}^N\gamma(z_{nk})$。
+
+关于$\bm\mu_k$最大化。注意到，公式\ref{eq:gmm-exp}中包含$\bm\mu_k$的项是
+\begin{align}
+	\label{eq:gmm-33}
+	& \sum_{n=1}^{N}\gamma(z_{nk})\log\mathcal N(\bm x_n\ |\ \bm\mu_k, \bm\Sigma_k) \notag \\
+	& = \sum_{n=1}^{N}\gamma(z_{nk})\left\{-\frac{D}{2}\log(2\pi) + \frac{1}{2}\log|\bm\Sigma_k^{-1}| -\frac{1}{2} (\bm x_n-\bm \mu_k)^\top\bm\Sigma_k^{-1}\bm(\bm x_k-\bm\mu_k)\right\}
+\end{align}
+对$\bm\mu_k$求导，并令其等于零，得
+\begin{equation}
+	\sum_{n=1}^N\gamma(z_{nk})\bm\Sigma_k^{-1}(\bm x_n-\bm\mu_k) = 0
+\end{equation}
+化简
+\begin{equation}
+	\sum_{n=1}^N\gamma(z_{nk})\bm\Sigma_k^{-1}\bm x_n  = \sum_{n=1}^N\gamma(z_{nk})\bm\Sigma_k^{-1}\bm u_k
+\end{equation}
+两边同乘$\bm\Sigma_k$，得
+\begin{equation}
+	\sum_{n=1}^N\gamma(z_{nk})\bm x_n = \sum_{n=1}^N\gamma(z_{nk})\bm \mu_k = N_k \bm\mu_k
+\end{equation}
+所以，得到新的$\bm \mu_k^{new}$为
+\begin{equation}
+	\bm\mu_k^{new} = \frac{1}{N_k}\sum_{n=1}^N\gamma(z_{nk})\bm x_n
+\end{equation}
+
+关于$\bm\Sigma_k$最大化。将公式\ref{eq:gmm-33}关于$\bm\Sigma_k^{-1}$求导，并令其导数等于零。具体过程如下
+\begin{align}
+	\bm\Sigma_k & = \frac{1}{N_k}\frac{\partial}{\partial \bm\Sigma_k^{-1}}\mathrm{Tr}\left(\bm\Sigma_k^{-1}\sum_{n=1}^N\gamma(z_{nk})(\bm x_n-\bm \mu_k)(\bm x_n-\bm\mu_k)^\top\right) \notag \\
+	& = \frac{1}{N_k}\sum_{n=1}^N\gamma(z_{nk})(\bm x_n-\bm \mu_k)(\bm x_n-\bm\mu_k)^\top
+\end{align}
+所以，新的$\bm\Sigma_k^{new} = \frac{1}{N_k}\sum_{n=1}^N\gamma(z_{nk})(\bm x_n-\bm \mu_k^{new})(\bm x_n-\bm\mu_k^{new})^\top$。
+
+总结一下，高斯混合分布的参数估计如下
+\begin{itemize}
+	\item 初始化均值$\bm \mu_k$，协方差$\bm \Sigma_k$和混合系数$\pi_k$，计算对数似然的初始值
+	\item \emph{E步骤}。使用当前参数，计算每个数据点的成分$\gamma(z_{nk})$
+	\begin{equation}
+		\gamma(z_{nk}) = \frac{\pi_k\mathcal N(\bm x_n\ |\ \bm\mu_k,\bm\Sigma_k)}{\sum_{j=1}^K\pi_j\mathcal N(\bm x_n\ |\ \bm\mu_j,\bm\Sigma_j)}
+	\end{equation}
+	\item \emph{M步骤}。使用当前的$\gamma(z_{nk})$重新估计参数。
+	\begin{equation}
+		\bm\mu_k^{new} = \frac{1}{N_k}\sum_{n=1}^N\gamma(z_{nk})\bm x_n
+	\end{equation}
+	\begin{equation}
+		\bm\Sigma_k^{new} = \frac{1}{N_k}\sum_{n=1}^N\gamma(z_{nk})(\bm x_n-\bm \mu_k^{new})(\bm x_n-\bm\mu_k^{new})^\top
+	\end{equation}
+	\begin{equation}
+		\pi_k^{new} = \frac{N_k}{N}
+	\end{equation}
+	其中
+	\begin{equation}
+		N_k = \sum_{n=1}^N\gamma(z_{nk})
+	\end{equation}
+	\item 计算对数似然函数
+	\begin{equation}
+		\log p(\bm X\ |\ \bm \pi, \bm \mu, \bm \Sigma)=\sum_{n=1}^{N}\log\left\{ \sum_{k=1}^{K}\pi_k\mathcal N(\bm x_n\ |\ \bm \mu_k, \Sigma_k) \right\}
+	\end{equation}
+	检查参数或者对数似然函数的收敛性。若没有满足收敛条件，返回\emph{E步骤}。
+\end{itemize}
 \subsection{伯努利分布的混合}
 \chapter{近似推断}
 
