@@ -439,7 +439,7 @@ Beta分布的均值和方差为
 \end{equation}
 由于$\bm z$使用了“1-of-K”编码，也可以将这个概率分布写成
 \begin{equation}
-	p(\bm z) = \prod_{k=1}^{k}\pi_k^{z_k}
+	p(\bm z) = \prod_{k=1}^{K}\pi_k^{z_k}
 \end{equation}
 对于$\bm z$给定的一个值， $\bm x$的条件概率分布是一个高斯分布
 \begin{equation}
@@ -456,9 +456,9 @@ $\bm x $的边缘概率分布可以通过将联合概率分布对所有可能的
 \end{equation}
 于是我们找到了一个将隐变量$\bm z$显示写出的一个高斯混合分布一个等价公式。对联合概率分布$p(\bm x, \bm z)$而不是对$p(\bm x)$进行操作，会产生计算上极大的简化。
 
-另一个有重要作用的量是给定$\bm x$的情况下，$\bm z$的后验概率$p(\bm z\ |\ \bm x)$。用$\mathcal \gamma(z_k)$表示$p(z_k=1\ |\ \bm x)$，其值可由贝叶斯定理给出
+另一个有重要作用的量是给定$\bm x$的情况下，$\bm z$的后验概率$p(\bm z\ |\ \bm x)$。用$\gamma(z_k)$表示$p(z_k=1\ |\ \bm x)$，其值可由贝叶斯定理给出
 \begin{align}
-	\gamma(z_k) = p(z_k=1\ |\ \bm x) &= \frac{p(z_k=1)p(\bm x\ |\ z_k=1)}{\sum_{j=1}^{K}p(z_j=1)p(\bm x\ |\ z_j=1)} \\
+	\gamma(z_k) = p(z_k=1\ |\ \bm x) &= \frac{p(z_k=1)p(\bm x\ |\ z_k=1)}{\sum_{j=1}^{K}p(z_j=1)p(\bm x\ |\ z_j=1)} \notag \\
 									 &= \frac{\pi_k p(\bm x\ |\ z_k=1)}{\sum_{j=1}^{K}\pi_j p(\bm x\ |\ z_j=1)} 
 \end{align}
 可以将$\pi_k$看成是$z_k=1$的先验概率，将$\gamma(z_k)$看成是观测到$\bm x$之后，对应的后验概率。
